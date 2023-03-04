@@ -1,5 +1,5 @@
 {
-  "name": "electron-chat-app-demo",
+  "name": "electron-chat",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -13,7 +13,7 @@
     "type": "git",
     "url": ""
   },
-  "author": "Antonin",
+  "author": "Antonin Picard",
   "license": "ISC",
   "devDependencies": {
     "babel-cli": "^6.16.0",
