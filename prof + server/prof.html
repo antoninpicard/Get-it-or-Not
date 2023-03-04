@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Professeur</title>
+  </head>
+  <body>
+    <h1>Messages des clients</h1>
+    <div id="messages"></div>
+
+    <script>
+      // Se connecte au serveur Socket.IO
+      const socket = io();
+
+      // Fonction pour ajouter un message à la div 'messages'
+      function addMessage(message) {
+        const messages = document.getElementById('messages');
+        const p = document.createElement('p');
+        p.textContent = message;
+        messages.appendChild(p);
+      }
+
+      // Événement de nouveau message reçu
+      socket.on('new message', function(data) {
+        addMessage(data.message);
+      });
+    </script>
+  </body>
+</html>
