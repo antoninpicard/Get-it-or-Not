@@ -19,11 +19,12 @@ class App extends React.Component {
       url: '',
       users: [],
       messages: [],
-      status: ''
+      status: '',
+      isLoggedIn: false
     };
     this.onLogin = this.onLogin.bind(this);
-    this.onInput = this.onInput.bind(this);
-    this.onSend = this.onSend.bind(this);
+    this.onNotUnderstood = this.onNotUnderstood.bind(this);
+    this.onUnderstood = this.onUnderstood.bind(this);
   }
   initSocket(url) {
     this.setState({ status: 'Connexion...' });
@@ -59,11 +60,12 @@ class App extends React.Component {
     });
   }
   onLogin(url, username) {
-    this.setState({ url, username });
+    this.setState({ url, username, isLoggedIn: true });
     this.initSocket(url);
     this.socket.emit('login', { username });
     this.refs.inputBar.focus();
   }
+  
   onInput(text) {
     const username = this.state.username;
     if (!typing) {
@@ -86,20 +88,51 @@ class App extends React.Component {
   componentDidMount() {
     this.refs.loginBox.focus();
   }
+  onNotUnderstood() {
+    const username = this.state.username;
+    this.socket.emit('message', { username, text: "Compris" });
+  }
+
+  onUnderstood() {
+    const username = this.state.username;
+    this.socket.emit('message', { username, text: 'Pas compris' });
+  }
+
+  componentDidMount() {
+    this.refs.loginBox.focus();
+  }
+  appendMessage(message) {
+    this.setState(prevState => {
+      let messages = prevState.messages;
+      if (messages.length >= 35) {
+        messages = messages.slice(1);
+      }
+      messages.push(message);
+      return { messages };
+    });
+  }
+  
   render() {
     return React.createElement(
       'main',
       null,
-      React.createElement(LoginBox, { ref: 'loginBox' , onLogin: this.onLogin }),
+      this.state.isLoggedIn ?
+        React.createElement(
+          'div',
+          { className: 'content' },
+          React.createElement(ChatArea, { messages: this.state.messages, status: this.state.status })
+        ) :
+        React.createElement(LoginBox, { ref: 'loginBox', onLogin: this.onLogin }),
       React.createElement(
         'div',
-        { className: 'content' },
-        React.createElement(ChatArea, { messages: this.state.messages, status: this.state.status })
-      ),
-      React.createElement(InputBar, { ref: 'inputBar', onInput: this.onInput, onSend: this.onSend })
+        { className: 'buttons' },
+        React.createElement('button', { className: 'button-53',onClick: this.onNotUnderstood }, "Compris"),
+        React.createElement('button', { className: 'button-53',onClick: this.onUnderstood }, "Pas compris")
+      )
     );
   }
-}
+}  
+
 
 class LoginBox extends React.Component {
   constructor(props) {
