@@ -26,27 +26,27 @@ class App extends React.Component {
     this.onSend = this.onSend.bind(this);
   }
   initSocket(url) {
-    this.setState({ status: 'Connecting...' });
+    this.setState({ status: 'Connexion...' });
     const socket = io.connect(url);
     socket.on('connect', () => {
-      this.appendMessage(`Connected to server ${ this.state.url }`);
+      this.appendMessage(`Connecté au server ${ this.state.url }`);
       this.setState({ status: '' });
     });
     socket.on('message', data => {
       this.appendMessage(`__${ data.username }:__ ${ data.text }`);
     });
     socket.on('login', data => {
-      this.appendMessage(`${ data.username } has logged in.`);
+      this.appendMessage(`${ data.username } c'est connecté.`);
       this.setState({ users: data.users });
     });
     socket.on('typing', data => {
-      this.setState({ status: `${ data.username } is typing...` });
+      this.setState({ status: `${ data.username } est entrain d'écrire...` });
     });
     socket.on('stop-typing', () => {
       this.setState({ status: '' });
     });
     socket.on('logout', data => {
-      this.appendMessage(`${ data.username } disconnected.`);
+      this.appendMessage(`${ data.username } c'est déconnecté.`);
       this.setState({ users: data.users });
     });
     this.socket = socket;
@@ -90,11 +90,10 @@ class App extends React.Component {
     return React.createElement(
       'main',
       null,
-      React.createElement(LoginBox, { ref: 'loginBox', url: 'http://localhost:3010', onLogin: this.onLogin }),
+      React.createElement(LoginBox, { ref: 'loginBox' , onLogin: this.onLogin }),
       React.createElement(
         'div',
         { className: 'content' },
-        React.createElement(UserList, { users: this.state.users }),
         React.createElement(ChatArea, { messages: this.state.messages, status: this.state.status })
       ),
       React.createElement(InputBar, { ref: 'inputBar', onInput: this.onInput, onSend: this.onSend })
@@ -130,41 +129,15 @@ class LoginBox extends React.Component {
         React.createElement(
           'h2',
           null,
-          'Login'
+          'Connexion'
         ),
-        React.createElement('input', { type: 'url', id: 'server-url', ref: 'url', value: this.props.url }),
-        React.createElement('input', { type: 'text', placeholder: 'enter username', id: 'username', ref: 'username', onKeyDown: this.onKeyDown, autofocus: true })
+        React.createElement('input', { type: 'url', id: 'server-url', placeholder: 'Adresse IP server',ref: 'url', value: this.props.url }),
+        React.createElement('input', { type: 'text', placeholder: 'Nom Prénom', id: 'username', ref: 'username', onKeyDown: this.onKeyDown, autofocus: true })
       )
     );
   }
 }
 
-class UserList extends React.Component {
-  render() {
-    const opts = { sanitize: true };
-    const users = this.props.users.map(user => React.createElement('li', { dangerouslySetInnerHTML: { __html: marked(user, opts) } }));
-    return React.createElement(
-      'aside',
-      null,
-      React.createElement(
-        'h3',
-        null,
-        'Connected Users'
-      ),
-      React.createElement(
-        'ul',
-        { id: 'users' },
-        users
-      ),
-      React.createElement(
-        'div',
-        { id: 'user-stats' },
-        users.length,
-        ' users online.'
-      )
-    );
-  }
-}
 
 class ChatArea extends React.Component {
   render() {
@@ -220,14 +193,14 @@ class InputBar extends React.Component {
         type: 'text',
         id: 'text-input',
         ref: 'input',
-        placeholder: 'say something...',
+        placeholder: 'Dites quelque chose...',
         onInput: this.onInput,
         onKeyDown: this.onKeyDown
       }),
       React.createElement(
         'button',
         { id: 'send-btn', onClick: this.onClick },
-        'Send'
+        'Envoyer'
       )
     );
   }
