@@ -161,30 +161,47 @@ class InputBar extends React.Component {
     super(props);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onInput = this.onInput.bind(this);
-    this.onClick = this.onClick.bind(this);
+    this.onNotUnderstood = this.onNotUnderstood.bind(this);
+    this.onUnderstood = this.onUnderstood.bind(this);
+    this.state = { inputValue: '' };
   }
+
   onKeyDown(e) {
     if (e.keyCode === 13) {
       this.send();
     }
   }
+
   onInput() {
     const value = this.refs.input.value.trim();
+    this.setState({ inputValue: value });
     this.props.onInput(value);
   }
-  onClick() {
-    this.send();
+
+  onNotUnderstood() {
+    const value = 'Pas compris';
+    this.props.onSend(value);
+    this.setState({ inputValue: '' });
   }
+
+  onUnderstood() {
+    const value = 'Compris';
+    this.props.onSend(value);
+    this.setState({ inputValue: '' });
+  }
+
   send() {
-    const value = this.refs.input.value.trim();
+    const value = this.state.inputValue;
     if (value) {
       this.props.onSend(value);
-      this.refs.input.value = ''; // Should I mutate state instead?
+      this.setState({ inputValue: '' });
     }
   }
+
   focus() {
     this.refs.input.focus();
   }
+
   render() {
     return React.createElement(
       'div',
@@ -194,14 +211,21 @@ class InputBar extends React.Component {
         id: 'text-input',
         ref: 'input',
         placeholder: 'Dites quelque chose...',
+        value: this.state.inputValue,
         onInput: this.onInput,
         onKeyDown: this.onKeyDown
       }),
       React.createElement(
         'button',
-        { id: 'send-btn', onClick: this.onClick },
-        'Envoyer'
-      )
+        { id: 'Not-btn', onClick: this.onNotUnderstood },
+        'Pas-Compris'
+      ),
+      React.createElement(
+        'button',
+        { id: 'Yes-btn', onClick: this.onUnderstood },
+        'Compris'
+      ),
+      
     );
   }
 }
