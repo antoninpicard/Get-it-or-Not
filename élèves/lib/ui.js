@@ -20,7 +20,7 @@ class App extends React.Component {
       users: [],
       messages: [],
       status: '',
-      isLoggedIn: false // new state to track login status
+      isLoggedIn: false
     };
     this.onLogin = this.onLogin.bind(this);
     this.onNotUnderstood = this.onNotUnderstood.bind(this);
@@ -101,6 +101,16 @@ class App extends React.Component {
   componentDidMount() {
     this.refs.loginBox.focus();
   }
+  appendMessage(message) {
+    this.setState(prevState => {
+      let messages = prevState.messages;
+      if (messages.length >= 35) {
+        messages = messages.slice(1);
+      }
+      messages.push(message);
+      return { messages };
+    });
+  }
   
   render() {
     return React.createElement(
@@ -116,8 +126,8 @@ class App extends React.Component {
       React.createElement(
         'div',
         { className: 'buttons' },
-        React.createElement('button', { onClick: this.onNotUnderstood }, "Pas compris"),
-        React.createElement('button', { onClick: this.onUnderstood }, "Compris")
+        React.createElement('button', { className: 'button-53',onClick: this.onNotUnderstood }, "Compris"),
+        React.createElement('button', { className: 'button-53',onClick: this.onUnderstood }, "Pas compris")
       )
     );
   }
