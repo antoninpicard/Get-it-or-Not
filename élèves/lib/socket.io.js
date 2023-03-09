@@ -7220,7 +7220,7 @@ function decode(str) {
 }
 
 /**
- * Yeast: A tiny growing id generator.
+ * Yeast: A tiny growing id generator. 
  *
  * @returns {String} A unique id.
  * @api public
