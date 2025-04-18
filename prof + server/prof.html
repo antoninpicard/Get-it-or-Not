@@ -2,27 +2,92 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Professeur</title>
+    <title>Professeur - Get-it-or-Not</title>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
-    <h1>Messages des clients</h1>
-    <div id="messages"></div>
+    <div class="container">
+      <h1>Tableau de bord du professeur</h1>
+      <div class="dashboard">
+        <div class="stats">
+          <h2>Statistiques</h2>
+          <p>Étudiants connectés: <span id="connected-count">0</span></p>
+          <p>Compris: <span id="understood-count">0</span></p>
+          <p>Pas compris: <span id="not-understood-count">0</span></p>
+        </div>
+        <div class="users-list">
+          <h2>Étudiants connectés</h2>
+          <ul id="users"></ul>
+        </div>
+      </div>
+      <div class="messages-container">
+        <h2>Messages des étudiants</h2>
+        <div id="messages"></div>
+      </div>
+    </div>
 
     <script>
       // Se connecte au serveur Socket.IO
       const socket = io();
-
-      // Fonction pour ajouter un message à la div 'messages'
-      function addMessage(message) {
-        const messages = document.getElementById('messages');
-        const p = document.createElement('p');
-        p.textContent = message;
-        messages.appendChild(p);
+      let understoodCount = 0;
+      let notUnderstoodCount = 0;
+      
+      // Fonction pour mettre à jour la liste des utilisateurs
+      function updateUsersList(users) {
+        const usersList = document.getElementById('users');
+        usersList.innerHTML = '';
+        document.getElementById('connected-count').textContent = users.length;
+        
+        users.forEach(username => {
+          const li = document.createElement('li');
+          li.textContent = username;
+          usersList.appendChild(li);
+        });
       }
 
-      // Événement de nouveau message reçu
-      socket.on('new message', function(data) {
-        addMessage(data.message);
+      // Fonction pour ajouter un message à la div 'messages'
+      function addMessage(username, text) {
+        const messages = document.getElementById('messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+        
+        const usernameSpan = document.createElement('span');
+        usernameSpan.className = 'username';
+        usernameSpan.textContent = username + ': ';
+        
+        const textSpan = document.createElement('span');
+        textSpan.className = 'text';
+        textSpan.textContent = text;
+        
+        messageDiv.appendChild(usernameSpan);
+        messageDiv.appendChild(textSpan);
+        messages.appendChild(messageDiv);
+        messages.scrollTop = messages.scrollHeight;
+        
+        // Update counters for understood/not understood
+        if (text === 'Compris') {
+          understoodCount++;
+          document.getElementById('understood-count').textContent = understoodCount;
+        } else if (text === 'Pas compris') {
+          notUnderstoodCount++;
+          document.getElementById('not-understood-count').textContent = notUnderstoodCount;
+        }
+      }
+
+      // Événements Socket.IO
+      socket.on('message', function(data) {
+        addMessage(data.username, data.text);
+      });
+      
+      socket.on('login', function(data) {
+        updateUsersList(data.users);
+        addMessage('Système', `${data.username} s'est connecté`);
+      });
+      
+      socket.on('logout', function(data) {
+        updateUsersList(data.users);
+        addMessage('Système', `${data.username} s'est déconnecté`);
       });
     </script>
   </body>
